@@ -563,6 +563,7 @@ std::vector<int> convexHull(std::vector<int> map, int width, int height) {
   if (width < 1 || height < 1 || map.empty()) {
     throw "";
   }
+  border = 135;
   std::vector<int> result(map);
   std::set<int> marks(map.begin(), map.end());
   marks.erase(0);
@@ -685,6 +686,7 @@ std::vector<int> quickHull(std::vector<int> map, int width, int height,
 }
 
 std::vector<int> convexQuickHull(std::vector<int> map, int width, int height) {
+  border = 135;
   std::vector<int> result(map);
   std::set<int> marks(map.begin(), map.end());
   marks.erase(0);
@@ -831,6 +833,7 @@ std::vector<int> quickHullOMP(std::vector<int> map, int width, int height,
 
 std::vector<int> convexQuickHullOMP(std::vector<int> map, int width,
                                     int height) {
+  border = 135;
   std::vector<int> result(map);
   std::set<int> marks(map.begin(), map.end());
   marks.erase(0);
