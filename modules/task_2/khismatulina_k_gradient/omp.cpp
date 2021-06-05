@@ -38,7 +38,7 @@ std::vector<double> getRandomMatrixOMP(int size) {
 }
 
 double multVVOMP(std::vector<double> A, std::vector<double> B) {
-  assert(A.size() == B.size());
+  if (A.size() != B.size()) throw -1;
   double result = 0;
   int size_A = A.size();
 #pragma omp parallel for reduction(+ : result)

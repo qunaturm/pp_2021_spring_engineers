@@ -20,11 +20,9 @@ TEST(gradient_omp, create_matrix) {
 }
 
 TEST(gradient_omp, gradient_5_proc_9x9) {
-  std::vector<double> s = getRandomMatrixOMP(3);
-  std::vector<double> v = getRandomVectorOMP(9);
-  bool resPar = gradientParOMP(s, v, 3);
-  bool check = 1;
-  ASSERT_EQ(check, resPar);
+  std::vector<double> a{1.1, 2.2};
+  std::vector<double> b{1.1};
+  ASSERT_ANY_THROW(multVVOMP(a, b););
 }
 
 TEST(gradient_omp, gradient_9_proc_16x16) {
