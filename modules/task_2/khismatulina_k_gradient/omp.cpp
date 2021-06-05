@@ -4,6 +4,7 @@
 #include <cassert>
 #include <random>
 #include <iostream>
+#include <cstdlib>
 #include "../../../modules/task_2/khismatulina_k_gradient/omp.h"
 
 std::vector<double> getRandomVectorOMP(int size) {
