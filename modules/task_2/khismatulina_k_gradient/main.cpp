@@ -7,13 +7,14 @@
 
 TEST(gradient_omp, create_vec) {
     std::vector<double> vec = getRandomVectorOMP(1);
-    int check = 1;
+    size_t check = 1;
     ASSERT_EQ(check, vec.size());
 }
 
 TEST(gradient_omp, create_matrix) {
     std::vector<double> matrix = getRandomMatrixOMP(2);
-    ASSERT_EQ(4, matrix.size());
+    size_t check = 4;
+    ASSERT_EQ(check, matrix.size());
 }
 
 TEST(gradient_omp, gradient_1_proc_4x4) {
