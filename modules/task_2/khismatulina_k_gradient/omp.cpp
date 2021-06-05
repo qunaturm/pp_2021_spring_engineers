@@ -103,7 +103,7 @@ bool gradientParOMP(const std::vector<double>& matrix, const std::vector<double>
         for (int j = 0; j < size; ++j) {
             A_check[i] += matrix[i * size + j] * res[j];
         }
-        if (MyAbs(A_check[i]) > MyAbs(vector[i]) && (MyAbs(A_check[i]) - MyAbs(vector[i]) > fail) ||
+        if ((MyAbs(A_check[i]) > MyAbs(vector[i]) && (MyAbs(A_check[i]) - MyAbs(vector[i]) > fail)) ||
             ((MyAbs(A_check[i]) <= MyAbs(vector[i])) && (MyAbs(vector[i]) - MyAbs(A_check[i]) > fail))) {
             correct = 1;
             break;
