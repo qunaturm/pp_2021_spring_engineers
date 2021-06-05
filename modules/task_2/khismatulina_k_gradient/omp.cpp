@@ -6,14 +6,17 @@
 #include <iostream>
 #include "../../../modules/task_2/khismatulina_k_gradient/omp.h"
 
-#define abs(x) (((x) < 0) ? (-(x)) : (x))
+double MyAbs(double x) {
+    if (x < 0) return -x;
+    return x;
+}
 
 std::vector<double> getRandomVectorOMP(int size) {
     if (size < 0) throw("size ouhgt to be > 0");
     std::random_device rd;
     std::mt19937 mersenne(rd());
     std::vector<double> vec(size, 1);
-    for (int i = 0; i < size; ++i) {
+    for (int16_t i = 0; i < size; ++i) {
         vec[i] = mersenne() * mersenne() % 7;
     }
     return vec;
@@ -24,8 +27,8 @@ std::vector<double> getRandomMatrixOMP(int size) {
     std::random_device rd;
     std::mt19937 mersenne(rd());
     std::vector<double> matrix(size*size, 1);
-    for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < size; ++j) {
+    for (int16_t i = 0; i < size; ++i) {
+        for (int16_t j = 0; j < size; ++j) {
             matrix[i * size + j] = matrix[j * size + i] = mersenne() * mersenne() % 7;
         }
     }
@@ -35,9 +38,8 @@ std::vector<double> getRandomMatrixOMP(int size) {
 double multVVOMP(std::vector<double> A, std::vector<double> B) {
     assert(A.size() == B.size());
     double result = 0;
-    int i = 0;
-#pragma omp parallel for private(i) reduction(+:result)
-    for (i = 0; i < A.size(); ++i) {
+#pragma omp parallel for reduction(+:result)
+    for (int16_t i = 0; i < A.size(); ++i) {
         result += A[i] * B[i];
     }
     return result;
@@ -47,10 +49,9 @@ std::vector<double> multMVOMP(std::vector<double> m, std::vector<double> v) {
     assert(m.size() > 0 && v.size() > 0);
     assert(m.size() % v.size() == 0);
     std::vector<double> result(m.size() / v.size());
-    int i, j = 0;
-#pragma omp parallel for private(i, j)
-    for (i = 0; i < result.size(); ++i) {
-        for (j = 0; j < v.size(); ++j) {
+#pragma omp parallel for
+    for (int16_t i = 0; i < result.size(); ++i) {
+        for (int16_t j = 0; j < v.size(); ++j) {
             result[i] += m[i * v.size() + j] * v[j];
         }
     }
@@ -108,9 +109,8 @@ bool gradientParOMP(const std::vector<double>& matrix, const std::vector<double>
         for (int j = 0; j < size; ++j) {
             A_check[i] += matrix[i * size + j] * res[j];
         }
-        if (abs(A_check[i] > abs(vector[i] &&
-            (abs(A_check[i]) - abs(vector[i]) > fail)) ||
-            ((abs(A_check[i]) <= abs(vector[i])) && (abs(vector[i]) - abs(A_check[i]) > fail)))) {
+        if (MyAbs(A_check[i]) > MyAbs(vector[i]) && (MyAbs(A_check[i]) - MyAbs(vector[i]) > fail) ||
+            ((MyAbs(A_check[i]) <= MyAbs(vector[i])) && (MyAbs(vector[i]) - MyAbs(A_check[i]) > fail))) {
             correct = 1;
                 break;
         }
