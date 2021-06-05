@@ -47,10 +47,8 @@ double multVVOMP(std::vector<double> A, std::vector<double> B) {
 }
 
 std::vector<double> multMVOMP(std::vector<double> m, std::vector<double> v) {
-    assert(m.size() > 0 && v.size() > 0);
-    assert(m.size() % v.size() == 0);
     std::vector<double> result(m.size() / v.size());
-    int size_r = result.size();
+    int size_r = result.size(); 
 #pragma omp parallel for
     for (int i = 0; i < size_r; ++i) {
         for (int j = 0; j < size_r; ++j) {
@@ -60,7 +58,7 @@ std::vector<double> multMVOMP(std::vector<double> m, std::vector<double> v) {
     return result;
 }
 
-bool gradientParOMP(const std::vector<double>& matrix, const std::vector<double>& vector, int size, int proc) {
+bool gradientParOMP(const std::vector<double>& matrix, const std::vector<double>& vector, int size) {
     assert(size > 0);
     int iters = 0;
     double eps = 0.1, beta = 0.0, alpha = 0.0, check = 0.0;
