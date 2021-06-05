@@ -4,8 +4,9 @@
 #include <cassert>
 #include <random>
 #include <iostream>
-#include <cstdlib>
 #include "../../../modules/task_2/khismatulina_k_gradient/omp.h"
+
+#define abs(x) (((x) < 0) ? (-(x)) : (x))
 
 std::vector<double> getRandomVectorOMP(int size) {
     if (size < 0) throw("size ouhgt to be > 0");
