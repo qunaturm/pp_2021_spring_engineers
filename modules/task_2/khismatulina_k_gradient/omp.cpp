@@ -38,8 +38,9 @@ std::vector<double> getRandomMatrixOMP(int size) {
 double multVVOMP(std::vector<double> A, std::vector<double> B) {
     assert(A.size() == B.size());
     double result = 0;
+    int size_A = A.size();
 #pragma omp parallel for reduction(+:result)
-    for (int i = 0; i < A.size(); ++i) {
+    for (int i = 0; i < size_A; ++i) {
         result += A[i] * B[i];
     }
     return result;
@@ -49,9 +50,10 @@ std::vector<double> multMVOMP(std::vector<double> m, std::vector<double> v) {
     assert(m.size() > 0 && v.size() > 0);
     assert(m.size() % v.size() == 0);
     std::vector<double> result(m.size() / v.size());
+    int size_r = result.size();
 #pragma omp parallel for
-    for (int i = 0; i < result.size(); ++i) {
-        for (int j = 0; j < v.size(); ++j) {
+    for (int i = 0; i < size_r; ++i) {
+        for (int j = 0; j < size_r; ++j) {
             result[i] += m[i * v.size() + j] * v[j];
         }
     }
