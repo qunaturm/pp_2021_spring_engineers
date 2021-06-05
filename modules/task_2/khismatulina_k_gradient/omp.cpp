@@ -16,7 +16,7 @@ std::vector<double> getRandomVectorOMP(int size) {
     std::random_device rd;
     std::mt19937 mersenne(rd());
     std::vector<double> vec(size, 1);
-    for (__int64 i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i) {
         vec[i] = mersenne() * mersenne() % 7;
     }
     return vec;
@@ -27,8 +27,8 @@ std::vector<double> getRandomMatrixOMP(int size) {
     std::random_device rd;
     std::mt19937 mersenne(rd());
     std::vector<double> matrix(size*size, 1);
-    for (__int64 i = 0; i < size; ++i) {
-        for (int16_t j = 0; j < size; ++j) {
+    for (int i = 0; i < size; ++i) {
+        for (int j = 0; j < size; ++j) {
             matrix[i * size + j] = matrix[j * size + i] = mersenne() * mersenne() % 7;
         }
     }
@@ -39,7 +39,7 @@ double multVVOMP(std::vector<double> A, std::vector<double> B) {
     assert(A.size() == B.size());
     double result = 0;
 #pragma omp parallel for reduction(+:result)
-    for (__int64 i = 0; i < A.size(); ++i) {
+    for (int i = 0; i < A.size(); ++i) {
         result += A[i] * B[i];
     }
     return result;
@@ -50,8 +50,8 @@ std::vector<double> multMVOMP(std::vector<double> m, std::vector<double> v) {
     assert(m.size() % v.size() == 0);
     std::vector<double> result(m.size() / v.size());
 #pragma omp parallel for
-    for (__int64 i = 0; i < result.size(); ++i) {
-        for (__int64 j = 0; j < v.size(); ++j) {
+    for (int i = 0; i < result.size(); ++i) {
+        for (int j = 0; j < v.size(); ++j) {
             result[i] += m[i * v.size() + j] * v[j];
         }
     }
