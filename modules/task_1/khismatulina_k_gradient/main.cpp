@@ -5,7 +5,7 @@
 #include "../../../modules/task_1/khismatulina_k_gradient/seq.h"
 
 TEST(gradient, create_vec_with_negative_size) {
-    ASSERT_ANY_THROW(getRandomVector(-1));
+    ASSERT_ANY_THROW(getRandomVector(-2));
 }
 
 TEST(gradient, check_multVV) {
@@ -37,7 +37,7 @@ TEST(gradient, check_multMV_1) {
     rightRes[0] = 22;
     std::vector<double> myRes = multMV(matrix, vec);
     int check = 1;
-    for (int i = 0; i < myRes.size(); ++i) {
+    for (size_t i = 0; i < myRes.size(); ++i) {
         if (myRes[i] != rightRes[i]) check = 0;
     }
     ASSERT_EQ(check, 1);
@@ -60,7 +60,7 @@ TEST(gradient, check_multMV_2) {
 
     std::vector<double> myRes = multMV(matrix, vec);
     int check = 1;
-    for (int i = 0; i < myRes.size(); ++i) {
+    for (size_t i = 0; i < myRes.size(); ++i) {
         if (myRes[i] != rightRes[i]) check = 0;
     }
     ASSERT_EQ(check, 1);
@@ -83,13 +83,12 @@ TEST(gradient, gradient_test) {
     matrix[6] = 2;
     matrix[7] = 0;
     matrix[8] = 3;
-    
     std::vector<double> rightRes(size);
     rightRes[0] = 0.25;
     rightRes[1] = 0.21;
     rightRes[2] = 0.68;
     std::vector<double> myRes = gradientSeq(matrix, vec, size);
-    for (int i = 0; i < myRes.size(); ++i) {
+    for (size_t i = 0; i < myRes.size(); ++i) {
         ASSERT_NEAR(myRes[i], rightRes[i], 0.5);
     }
 }
