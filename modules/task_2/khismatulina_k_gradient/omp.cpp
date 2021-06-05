@@ -33,9 +33,9 @@ std::vector<double> getRandomMatrixOMP(int size) {
 double multVVOMP(std::vector<double> A, std::vector<double> B) {
     assert(A.size() == B.size());
     double result = 0;
-     int i = 0;
-#pragma omp parallel for reduction(+:result)
-    for (size_t = 0; i < A.size(); ++i) {
+    int i = 0;
+#pragma omp parallel for private(i) reduction(+:result)
+    for (i = 0; i < A.size(); ++i) {
         result += A[i] * B[i];
     }
     return result;
@@ -46,9 +46,9 @@ std::vector<double> multMVOMP(std::vector<double> m, std::vector<double> v) {
     assert(m.size() % v.size() == 0);
     std::vector<double> result(m.size() / v.size());
     int i, j = 0;
-#pragma omp parallel for
-    for (size_t = 0; i < result.size(); ++i) {
-        for (size_t = 0; j < v.size(); ++j) {
+#pragma omp parallel for private(i, j)
+    for (i = 0; i < result.size(); ++i) {
+        for (j = 0; j < v.size(); ++j) {
             result[i] += m[i * v.size() + j] * v[j];
         }
     }
@@ -64,7 +64,8 @@ bool gradientParOMP(const std::vector<double>& matrix, const std::vector<double>
     std::vector<double> discrepancyCurrent(size), discrepancyNext(size);
     int i, k = 0;
     omp_set_num_threads(proc);
-// #pragma omp parallel for
+
+#pragma omp parallel for private(i)
     for (i = 0; i < size; ++i) {
         discrepancyCurrent[i] = vector[i] - Ah[i];
     }
@@ -74,21 +75,24 @@ bool gradientParOMP(const std::vector<double>& matrix, const std::vector<double>
         Ah = multMVOMP(matrix, h);
         alpha = multVVOMP(discrepancyCurrent, discrepancyNext) / multVVOMP(h, Ah);
         int i = 0;
-// #pragma omp parallel for
+
+#pragma omp parallel for private(i)
         for (i = 0; i < size; ++i) {
             res[i] += alpha * h[i];
             discrepancyNext[i] = discrepancyCurrent[i] - alpha * Ah[i];
         }
         beta = multVVOMP(discrepancyNext, discrepancyNext) / multVVOMP(discrepancyCurrent, discrepancyCurrent);
         check = sqrt(multVVOMP(discrepancyNext, discrepancyNext));
-// #pragma omp parallel for
+
+#pragma omp parallel for private(k)
         for (k = 0; k < size; ++k) {
             h[k] = discrepancyNext[k] + beta * h[k];
         }
+
         std::vector<double> swap = discrepancyNext;
         discrepancyNext = discrepancyCurrent;
         discrepancyCurrent = swap;
-    } while ((check > eps) && (iters <= size));
+    } while ((check < eps) && (iters <= size));
 
     std::vector<double> A_check(size);
     int correct = 0;
