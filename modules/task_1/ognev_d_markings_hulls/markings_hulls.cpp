@@ -252,6 +252,7 @@ std::vector<int> jarvis(std::vector<int> map, int width, int height, int mark,
 
 std::vector<int> convexHull(std::vector<int> map, int width, int height) {
   if (width < 1 || height < 1 || map.empty()) throw "";
+  border = 135;
   std::vector<int> result(map);
   std::set<int> marks(map.begin(), map.end());
   marks.erase(0);
