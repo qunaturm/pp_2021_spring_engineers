@@ -76,9 +76,9 @@ TEST(Sequential_Test, Convex_Quick_Hull_Test) {
                       false, true,  false, false, false, false, true, true,
                       true,  true,  false, true,  false, false, true, false,
                       false, true,  true,  true,  false, true};
-  std::vector<int> right{139, 0, 139, 0, 140, 139, 2, 139, 0, 3,
-                         0,   0, 0,   0, 3,   141, 4, 141, 0, 140,
-                         0,   0, 4,   0, 0,   141, 4, 141, 0, 142};
+  std::vector<int> right{135, 0, 135, 0, 136, 135, 2, 135, 0, 3,
+                         0,   0, 0,   0, 3,   137, 4, 137, 0, 136,
+                         0,   0, 4,   0, 0,   137, 4, 137, 0, 138};
   for (int i = 0; i < height; i++) {
     for (int j = 0; j < width; j++) {
       if (v[i * width + j] == true)
@@ -141,9 +141,9 @@ TEST(Parallel_Test, Convex_QuickHull_Test) {
                       false, true,  false, false, false, false, true, true,
                       true,  true,  false, true,  false, false, true, false,
                       false, true,  true,  true,  false, true};
-  std::vector<int> right{143, 0, 143, 0, 144, 143, 2, 143, 0, 4,
-                         0,   0, 0,   0, 4,   145, 5, 145, 0, 144,
-                         0,   0, 5,   0, 0,   145, 5, 145, 0, 146};
+  std::vector<int> right{135, 0, 135, 0, 136, 135, 2, 135, 0, 3,
+                         0,   0, 0,   0, 3,   137, 4, 137, 0, 136,
+                         0,   0, 4,   0, 0,   137, 4, 137, 0, 138};
   for (int i = 0; i < height; i++) {
     for (int j = 0; j < width; j++) {
       if (v[i * width + j] == true)
