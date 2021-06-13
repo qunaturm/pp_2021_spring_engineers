@@ -1,12 +1,14 @@
 // Copyright 2021 Stoicheva Darya
-#include <omp.h>
+#include <tbb/tbb.h>
+#include <limits>
+#include <climits>
 #include <vector>
 #include <string>
 #include <random>
 #include <algorithm>
 #include <iostream>
 #include <sstream>
-#include "../../../modules/task_2/stoicheva_d_dijkstra/dijkstra_omp.h"
+#include "../../../modules/task_3/stoicheva_d_dijkstra_tbb/dijkstra_tbb.h"
 
 void print_graph(const std::vector<int>& graph, const size_t points, const std::string& prefix) {
 #ifdef DEBUG_PRINT
@@ -58,7 +60,7 @@ void print_vector(const std::vector<T>& vector, const size_t size, const std::st
 int find_unprocessed_point_with_min_distance(const std::vector<int>& graph,
     const std::vector<int>& distances, const std::vector<bool>& processed) {
     int found_point = -1;
-    int found_min_distance = std::numeric_limits<int>::max();
+    int found_min_distance = MAX_DISTANCE;
     for (size_t point = 0; point < processed.size(); point++) {
         if (!processed[point] && distances[point] < found_min_distance) {
             found_min_distance = distances[point];
@@ -70,37 +72,42 @@ int find_unprocessed_point_with_min_distance(const std::vector<int>& graph,
     return found_point;
 }
 
-int find_unprocessed_point_with_min_distance_omp(const std::vector<int>& graph,
+int find_unprocessed_point_with_min_distance_tbb(const std::vector<int>& graph,
     const std::vector<int>& distances, const std::vector<bool>& processed) {
-    int found_point = -1;
-    int found_min_distance = std::numeric_limits<int>::max();
-    #pragma omp parallel
-    {
-        int local_found_point = found_point;
-        int local_found_min_distance = found_min_distance;
-        #pragma omp for
-        for (int point = 0; point < static_cast<int>(processed.size()); point++) {
-            if (!processed[point] && distances[point] < local_found_min_distance) {
-                local_found_min_distance = distances[point];
-                local_found_point = point;
+
+    PointInfo minPoint;
+    minPoint.distance = MAX_DISTANCE;
+    minPoint.index = -1;
+    size_t pointsCount = processed.size();
+    size_t pointsPerThread = pointsCount / THREADS_COUNT;
+
+    minPoint = tbb::parallel_reduce(
+        tbb::blocked_range<int>(0, static_cast<int>(pointsCount), static_cast<int>(pointsPerThread)),
+        minPoint,
+        [&](const tbb::blocked_range<int>& range, PointInfo local_minPoint) {
+            for (int point = range.begin(); point < range.end(); point++) {
+                if (!processed[point] && distances[point] < local_minPoint.distance) {
+                    local_minPoint.distance = distances[point];
+                    local_minPoint.index = point;
+                }
             }
-        }
-        #pragma omp critical
-        {
-            if (found_min_distance > local_found_min_distance) {
-                found_min_distance = local_found_min_distance;
-                found_point = local_found_point;
+            return local_minPoint;
+        },
+        [&](PointInfo p1, PointInfo p2) {
+            if (p1.distance > p2.distance) {
+                return p2;
             }
-        }
-    }
-    return found_point;
+            return p1;
+        });
+
+    return minPoint.index;
 }
 
 int process_unprocessed_point(const std::vector<int>& graph,
     std::vector<int>* distances,
     std::vector<bool>* processed, int current_point) {
 
-    int min_distance = std::numeric_limits<int>::max();
+    int min_distance = MAX_DISTANCE;
     int min_distance_point = -1;
     for (int point = 0; point < static_cast<int>(processed->size()); point++) {
         int start_row_index = current_point * static_cast<int>(processed->size());
@@ -108,7 +115,7 @@ int process_unprocessed_point(const std::vector<int>& graph,
         if (!(*processed)[point] && distance > 0) {
             int *dp = distances->data() + point;
             int *dcp = distances->data() + current_point;
-            *dp = std::min(*dp, *dcp + distance);
+            *dp =  *dp < *dcp + distance ? *dp : *dcp + distance;  //         std::min(*dp, *dcp + distance);
             if (min_distance > *dp) {
                 min_distance = *dp;
                 min_distance_point = point;
@@ -121,40 +128,44 @@ int process_unprocessed_point(const std::vector<int>& graph,
     return min_distance_point;
 }
 
-int process_unprocessed_point_omp(const std::vector<int>& graph,
+int process_unprocessed_point_tbb(const std::vector<int>& graph,
     std::vector<int>* distances,
     std::vector<bool>* processed, int current_point) {
 
-    int min_distance = std::numeric_limits<int>::max();
-    int min_distance_point = -1;
-    #pragma omp parallel
-    {
-        int local_min_distance = std::numeric_limits<int>::max();
-        int local_min_distance_point = -1;
-        #pragma omp for
-        for (int point = 0; point < static_cast<int>(processed->size()); point++) {
-            int start_row_index = current_point * static_cast<int>(processed->size());
-            int distance = graph[start_row_index + point];
-            if (!(*processed)[point] && distance > 0) {
-                int* dp = distances->data() + point;
-                int* dcp = distances->data() + current_point;
-                *dp = std::min(*dp, *dcp + distance);
-                if (local_min_distance > *dp) {
-                    local_min_distance = *dp;
-                    local_min_distance_point = point;
+    PointInfo minPoint;
+    minPoint.distance = MAX_DISTANCE;
+    minPoint.index = -1;
+    size_t pointsCount = processed->size();
+    size_t pointsPerThread = pointsCount / THREADS_COUNT;
+
+    minPoint = tbb::parallel_reduce(
+        tbb::blocked_range<int>(0, static_cast<int>(pointsCount), static_cast<int>(pointsPerThread)),
+        minPoint,
+        [&](const tbb::blocked_range<int>& range, PointInfo local_minPoint) {
+            for (int point = range.begin(); point < range.end(); point++) {
+                int start_row_index = current_point * static_cast<int>(processed->size());
+                int distance = graph[start_row_index + point];
+                if (!(*processed)[point] && distance > 0) {
+                    int* dp = distances->data() + point;
+                    int* dcp = distances->data() + current_point;
+                    *dp = *dp < *dcp + distance ? *dp : *dcp + distance;  // std::min(*dp, *dcp + distance);
+                    if (local_minPoint.distance > *dp) {
+                        local_minPoint.distance = *dp;
+                        local_minPoint.index = point;
+                    }
                 }
             }
-        }
-        #pragma omp critical
-        {
-            if (min_distance > local_min_distance) {
-                min_distance = local_min_distance;
-                min_distance_point = local_min_distance_point;
+            return local_minPoint;
+        },
+        [&](PointInfo p1, PointInfo p2) {
+            if (p1.distance > p2.distance) {
+                return p2;
             }
-        }
-    }
+            return p1;
+        });
+
     (*processed)[current_point] = true;
-    return min_distance_point;
+    return minPoint.index;
 }
 
 std::vector<int> dijkstra(const std::vector<int>& graph, size_t start, size_t end) {
@@ -179,13 +190,13 @@ std::vector<int> dijkstra(const std::vector<int>& graph, size_t start, size_t en
         return { static_cast<int>(start) + 1 };
     }
 
-    constexpr int max_int = std::numeric_limits<int>::max();
+    constexpr int max_int = MAX_DISTANCE;
     std::vector<int> distances = std::vector<int>(points_count, max_int);
     std::vector<bool> processed = std::vector<bool>(points_count, false);
 
     distances[start] = 0;
 
-    int next_unprocessed_point = start;
+    int next_unprocessed_point = static_cast<int>(start);
     while (next_unprocessed_point >= 0) {
         next_unprocessed_point = process_unprocessed_point(graph,
             &distances, &processed, next_unprocessed_point);
@@ -201,9 +212,9 @@ std::vector<int> dijkstra(const std::vector<int>& graph, size_t start, size_t en
     print_vector(distances, distances.size(), "distances");
 
     std::vector<int> path;
-    path.push_back(end + 1);
+    path.push_back(static_cast<int>(end + 1));
     int weight = distances[end];
-    int current = end;
+    int current = static_cast<int>(end);
 
     while (current != static_cast<int>(start)) {
         for (int i = 0; i < static_cast<int>(points_count); i++) {
@@ -222,7 +233,7 @@ std::vector<int> dijkstra(const std::vector<int>& graph, size_t start, size_t en
     return path;
 }
 
-std::vector<int> dijkstra_omp(const std::vector<int>& graph, size_t start, size_t end) {
+std::vector<int> dijkstra_tbb(const std::vector<int>& graph, size_t start, size_t end) {
     if (graph.size() == 0)
         throw "Error: empty graph";
 
@@ -244,49 +255,41 @@ std::vector<int> dijkstra_omp(const std::vector<int>& graph, size_t start, size_
         return { static_cast<int>(start) + 1 };
     }
 
-    constexpr int max_int = std::numeric_limits<int>::max();
+    constexpr int max_int = MAX_DISTANCE;
     std::vector<int> distances = std::vector<int>(points_count, max_int);
     std::vector<bool> processed = std::vector<bool>(points_count, false);
 
     distances[start] = 0;
 
-    int next_unprocessed_point = start;
+    tbb::task_scheduler_init init(THREADS_COUNT);
+    tbb::mutex mutex;
+
+    int next_unprocessed_point = static_cast<int>(start);
     while (next_unprocessed_point >= 0) {
-            next_unprocessed_point = process_unprocessed_point_omp(graph,
+            next_unprocessed_point = process_unprocessed_point_tbb(graph,
                 &distances, &processed, next_unprocessed_point);
             if (next_unprocessed_point < 0) {
                 next_unprocessed_point =
-                    find_unprocessed_point_with_min_distance_omp(graph, distances,
+                    find_unprocessed_point_with_min_distance_tbb(graph, distances,
                         processed);
             }
     }
     print_vector(distances, distances.size(), "distances:");
 
     std::vector<int> path;
-    path.push_back(end + 1);
-    int distance = distances[end];
-    int current = end;
-    bool found = false;
+    path.push_back(static_cast<int>(end + 1));
+    int weight = distances[end];
+    int current = static_cast<int>(end);
 
     while (current != static_cast<int>(start)) {
-        found = false;
-
-        #pragma omp parallel for
         for (int i = 0; i < static_cast<int>(points_count); i++) {
-            // if (found) {
-            //     std::cout << "################ Found and not skipped #################" << std::endl;
-            // }
-            if (!found && graph[current * points_count + i] > 0) {
-                int tmp_distance = distance - graph[current * points_count + i];
-                if (distances[i] == tmp_distance) {
-                    #pragma omp critical
-                    {
-                        distance = tmp_distance;
-                        current = i;
-                        path.insert(path.begin(), i + 1);
-                        found = true;
-                        // std::cout << "################ Found - now request for skip #################" << std::endl;
-                    }
+            if (graph[current * points_count + i] > 0) {
+                int tmp = weight - graph[current * points_count + i];
+                if (distances[i] == tmp) {
+                    weight = tmp;
+                    current = i;
+                    path.insert(path.begin(), i + 1);
+                    break;
                 }
             }
         }

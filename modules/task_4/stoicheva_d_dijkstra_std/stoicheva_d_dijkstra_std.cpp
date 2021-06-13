@@ -134,7 +134,7 @@ int find_unprocessed_point_with_min_distance(const std::vector<int>& graph,
             found_point = static_cast<int>(point);
         }
     }
-    // std::cout << "FUP: Next point with min distance " << found_min_distance
+    // std::cout << "FUP: Next  point with min distance " << found_min_distance
     //           << " from " << 0 << " is " << found_point << std::endl;
     return found_point;
 }
