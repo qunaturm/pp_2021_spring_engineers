@@ -76,9 +76,9 @@ TEST(Sequential_Test, Convex_Quick_Hull_Test) {
                       false, true,  false, false, false, false, true, true,
                       true,  true,  false, true,  false, false, true, false,
                       false, true,  true,  true,  false, true};
-  std::vector<int> right{139, 0, 139, 0, 140, 139, 2, 139, 0, 3,
-                         0,   0, 0,   0, 3,   141, 4, 141, 0, 140,
-                         0,   0, 4,   0, 0,   141, 4, 141, 0, 142};
+  std::vector<int> right{135, 0, 135, 0, 136, 135, 2, 135, 0, 3,
+                         0,   0, 0,   0, 3,   137, 4, 137, 0, 136,
+                         0,   0, 4,   0, 0,   137, 4, 137, 0, 138};
   for (int i = 0; i < height; i++) {
     for (int j = 0; j < width; j++) {
       if (v[i * width + j] == true)
@@ -112,9 +112,9 @@ TEST(Parallel_Test, Convex_Quick_Hull_Test) {
                       false, true,  false, false, false, false, true, true,
                       true,  true,  false, true,  false, false, true, false,
                       false, true,  true,  true,  false, true};
-  std::vector<int> right{143, 0, 143, 0, 144, 143, 2, 143, 0, 3,
-                         0,   0, 0,   0, 3,   145, 4, 145, 0, 144,
-                         0,   0, 4,   0, 0,   145, 4, 145, 0, 146};
+  std::vector<int> right{135, 0, 135, 0, 136, 135, 2, 135, 0, 3,
+                         0,   0, 0,   0, 3,   137, 4, 137, 0, 136,
+                         0,   0, 4,   0, 0,   137, 4, 137, 0, 138};
   for (int i = 0; i < height; i++) {
     for (int j = 0; j < width; j++) {
       if (v[i * width + j] == true)
@@ -148,9 +148,9 @@ TEST(Parallel_Test, Convex_Quick_Hull_Test_2) {
                       false, true,  true,  false, true, true,  true,  true,
                       false, false, false, false, true, false, true,  false,
                       true,  true,  false, true,  true, true};
-  std::vector<int> right{147, 0, 148, 2, 148, 0,   0, 0,   0, 2,
-                         149, 0, 148, 2, 148, 3,   0, 0,   0, 0,
-                         3,   0, 150, 0, 150, 149, 0, 150, 6, 150};
+  std::vector<int> right{135, 0, 136, 2, 136, 0,   0, 0,   0, 2,
+                         137, 0, 136, 2, 136, 3,   0, 0,   0, 0,
+                         3,   0, 138, 0, 138, 137, 0, 138, 6, 138};
   for (int i = 0; i < height; i++) {
     for (int j = 0; j < width; j++) {
       if (v[i * width + j] == true)
