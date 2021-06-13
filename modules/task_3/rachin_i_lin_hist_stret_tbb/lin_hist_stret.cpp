@@ -53,16 +53,17 @@ std::vector<int> histogramStretchingTbb(const std::vector<int>& mx, int rows, in
     int sizeM = rows * clmns;
     int maxIntensity = mx[0];
     int minIntensity = mx[0];
+
     std::vector<int> stretchedMatrix(sizeM);
-    for (int i = 1; i < sizeM; i++) {
+
+    tbb::parallel_for(0, static_cast<int>(mx.size()), [&](const int i) {
         if (mx[i] > maxIntensity) {
             maxIntensity = mx[i];
-            continue;
         }
         if (mx[i] < minIntensity) {
             minIntensity = mx[i];
         }
-    }
+    });
 
     tbb::parallel_for(0, static_cast<int>(mx.size()), [&](const int i) {
         stretchedMatrix[i] = ((mx[i] - minIntensity) * 255) / (maxIntensity - minIntensity);

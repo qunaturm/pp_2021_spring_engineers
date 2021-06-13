@@ -76,6 +76,23 @@ TEST(LinearStretchingOmp, Comparison_seq_with_omp) {
     ASSERT_EQ(seq, omp);
 }
 
+TEST(LinearStretchingOmp, Comparison_hists) {
+    int size = 5000;
+    std::vector<int> mx = getRandomMatrix(size, size);
+    std::vector<int> seq;
+    std::vector<int> omp;
+    seq = histogramStretching(mx, size, size);
+    omp = histogramStretchingOmp(mx, size, size);
+    std::vector<int> seq_hist(256, 0);
+    std::vector<int> omp_hist(256, 0);
+
+    for (int i = 1; i < size * size; i++) {
+        seq_hist[seq[i]]++;
+        omp_hist[omp[i]]++;
+    }
+    ASSERT_EQ(seq_hist, omp_hist);
+}
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

@@ -77,6 +77,7 @@ TEST(Parallel_Operations_TBB, Comparison_hists) {
         seq_hist[seq[i]]++;
         tbb_hist[tbb[i]]++;
     }
+
     ASSERT_EQ(seq_hist, tbb_hist);
 }
 
